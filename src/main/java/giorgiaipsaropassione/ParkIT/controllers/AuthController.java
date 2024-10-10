@@ -33,11 +33,16 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public NewUserDTO save(@RequestBody @Validated UserDTO body, BindingResult validationResult) {
+        System.out.println("Ricevuto UserDTO: " + body); // Log per debugging
+
         if (validationResult.hasErrors()) {
-            String msg = validationResult.getAllErrors().stream().map(error -> error.getDefaultMessage()).collect(Collectors.joining());
+            String msg = validationResult.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .collect(Collectors.joining(", "));
             throw new BadRequestException(msg);
-        } else {
-            return new NewUserDTO(this.userService.saveUser(body).getId());
         }
+
+        return new NewUserDTO(this.userService.saveUser(body).getId());
     }
-}
+    }
+

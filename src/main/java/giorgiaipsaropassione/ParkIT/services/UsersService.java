@@ -58,7 +58,7 @@ public class UsersService {
                 body.hasAnnualCard()
         );
 
-        return userRepository.save(new User());
+        return userRepository.save(newUser);
     }
 
     public User update(UUID id, UserDTO payload) {

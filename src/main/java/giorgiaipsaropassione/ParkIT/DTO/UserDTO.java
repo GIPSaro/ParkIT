@@ -1,6 +1,8 @@
 package giorgiaipsaropassione.ParkIT.DTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -23,7 +25,8 @@ public record UserDTO(
         @NotEmpty(message = "Surname is required")
         String surname,
 
-        @NotEmpty(message = "Date of Birthday is required")
+        @NotNull(message = "Date of Birthday is required")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         LocalDate dateOfBirthday,
 
         @NotEmpty(message = "License Plate is required")
@@ -31,6 +34,7 @@ public record UserDTO(
 
         boolean hasAnnualCard
 ) {
+
 }
 
 

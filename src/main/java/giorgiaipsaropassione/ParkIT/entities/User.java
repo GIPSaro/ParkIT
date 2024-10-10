@@ -26,6 +26,7 @@ public class User {
     @GeneratedValue
     private UUID id;
     private String username;
+    @Column(unique = true)
     private String email;
     private String password;
     private String name;
@@ -41,7 +42,7 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private AnnualCard annualCard;
-    public User(String username, String email, String password, String name, String surname,LocalDate dateOfBirthday, String licensePlate, boolean hasAnnualCard){
+    public User(String username, String email, String password, String name, String surname, LocalDate dateOfBirthday, String licensePlate, boolean hasAnnualCard){
         this.username=username;
         this.email=email;
         this.password=password;
