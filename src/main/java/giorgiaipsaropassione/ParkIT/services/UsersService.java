@@ -10,6 +10,7 @@ import giorgiaipsaropassione.ParkIT.exceptions.BadRequestException;
 import giorgiaipsaropassione.ParkIT.exceptions.EmailAlreadyExistsException;
 import giorgiaipsaropassione.ParkIT.exceptions.NotFoundException;
 import giorgiaipsaropassione.ParkIT.repositories.UsersRepository;
+import giorgiaipsaropassione.ParkIT.tools.MailgunSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +35,9 @@ public class UsersService {
     @Autowired
     public Cloudinary cloudinary;
 
+    @Autowired
+    MailgunSender mailgunSender;
+
     // GET PAGES
     public Page<User> getAllUser(int pages, int size, String sortBy) {
         Pageable pageable = PageRequest.of(pages, size, Sort.by(sortBy));
@@ -55,6 +59,7 @@ public class UsersService {
         if (this.userRepository.existsByEmail(body.email())) {
             throw new BadRequestException("User with this email already exists");
         }
+
         User newUser = new User(
                 body.username(),
                 body.email(),
@@ -64,11 +69,13 @@ public class UsersService {
                 body.dateOfBirthday(),
                 body.licensePlate(),
                 body.hasAnnualCard(),
-                body.avatar()
+                "https://ui-avatars.com/api/?name=" + body.name() + "+" + body.surname());
 
-        );
+                User savedUser = this.userRepository.save(newUser);
+        this.mailgunSender.sendRegistrationEmail(newUser);
+        return savedUser;
 
-        return userRepository.save(newUser);
+
     }
 
     public User update(UUID userId, UserDTO userUpdateDTO) {
