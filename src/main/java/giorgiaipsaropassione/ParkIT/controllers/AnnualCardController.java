@@ -1,0 +1,25 @@
+package giorgiaipsaropassione.ParkIT.controllers;
+
+import giorgiaipsaropassione.ParkIT.DTO.AnnualCardDTO;
+import giorgiaipsaropassione.ParkIT.entities.AnnualCard;
+import giorgiaipsaropassione.ParkIT.services.AnnualCardService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/annualCards")
+public class AnnualCardController {
+
+    @Autowired
+    private AnnualCardService annualCardService;
+
+    @PostMapping("/purchase")
+    public ResponseEntity<AnnualCard> purchaseAnnualCard(@RequestBody AnnualCardDTO annualCardDTO) {
+        AnnualCard annualCard = annualCardService.purchaseAnnualCard(annualCardDTO);
+        return ResponseEntity.ok(annualCard);
+    }
+}

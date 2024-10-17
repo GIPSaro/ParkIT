@@ -41,13 +41,11 @@ public class Config {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Collections.singletonList(localHost));
-        // whitelist con uno o più indirizzi dei frontend che voglio che accedano a questo backend. Se voglio permettere l'accesso a tutti
-        // (anche se un po' rischioso) basta mettere "*"
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    } // NON DIMENTICHIAMOCI CHE VA AGGIUNTA UN'IMPOSTAZIONE PER I CORS ANCHE NELLA FILTER CHAIN QUA SOPRA
+    }
 }

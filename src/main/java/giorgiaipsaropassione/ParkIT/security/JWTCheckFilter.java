@@ -32,12 +32,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer "))
+        if (authHeader == null || !authHeader.startsWith("Bearer"))
             throw new UnauthorizedException("INSERT DATA CORRECTLY");
         String accessToken = authHeader.substring(7);
         jwtTools.verifyToke(accessToken);
-        String id = this.jwtTools.extractIdFromToken(accessToken); // qui abbiamo l'id da inserire nel context
-        // ... qui inserire dopo lo user che prendiamo dal DB per aggiungerlo al context
+        String id = this.jwtTools.extractIdFromToken(accessToken);
         User userFromDB = this.userService.findById(UUID.fromString(id));
         Authentication auth = new UsernamePasswordAuthenticationToken(userFromDB, null, userFromDB.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);

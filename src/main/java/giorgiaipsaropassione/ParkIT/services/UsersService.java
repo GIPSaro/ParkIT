@@ -2,9 +2,12 @@ package giorgiaipsaropassione.ParkIT.services;
 
 
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import giorgiaipsaropassione.ParkIT.DTO.UserDTO;
 import giorgiaipsaropassione.ParkIT.entities.User;
 import giorgiaipsaropassione.ParkIT.exceptions.BadRequestException;
+import giorgiaipsaropassione.ParkIT.exceptions.EmailAlreadyExistsException;
 import giorgiaipsaropassione.ParkIT.exceptions.NotFoundException;
 import giorgiaipsaropassione.ParkIT.repositories.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -25,6 +31,8 @@ public class UsersService {
     @Autowired
     public PasswordEncoder bcrypt;
 
+    @Autowired
+    public Cloudinary cloudinary;
 
     // GET PAGES
     public Page<User> getAllUser(int pages, int size, String sortBy) {
@@ -55,20 +63,43 @@ public class UsersService {
                 body.surname(),
                 body.dateOfBirthday(),
                 body.licensePlate(),
-                body.hasAnnualCard()
+                body.hasAnnualCard(),
+                body.avatar()
+
         );
 
         return userRepository.save(newUser);
     }
 
-    public User update(UUID id, UserDTO payload) {
-        User found = this.findById(id);
-        found.setUsername(payload.username());
-        found.setEmail(payload.email());
-        found.setName(payload.name());
-        found.setSurname(payload.surname());
-        found.setDateOfBirthday(payload.dateOfBirthday());
-        found.setLicensePlate(payload.licensePlate());
-        return this.userRepository.save(found);
+    public User update(UUID userId, UserDTO userUpdateDTO) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Utente non trovato con ID: " + userId));
+
+        if (userUpdateDTO.username() != null) {
+            existingUser.setUsername(userUpdateDTO.username());
+        }
+
+        if (userUpdateDTO.email() != null && !userUpdateDTO.email().equals(existingUser.getEmail())) {
+            if (userRepository.existsByEmail(userUpdateDTO.email())) {
+                throw new EmailAlreadyExistsException("L'email è già in uso");
+            }
+            existingUser.setEmail(userUpdateDTO.email());
+        }
+
+        existingUser.setName(userUpdateDTO.name());
+        existingUser.setSurname(userUpdateDTO.surname());
+        existingUser.setDateOfBirthday(userUpdateDTO.dateOfBirthday());
+        existingUser.setLicensePlate(userUpdateDTO.licensePlate());
+
+        return userRepository.save(existingUser);
+    }
+
+    //IMG UPLOAD
+    public String imgUpload(MultipartFile file, UUID id) throws IOException, MaxUploadSizeExceededException {
+        User userFound = this.findById(id);
+        String url = (String) cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url");
+        userFound.setAvatar(url);
+        this.userRepository.save(userFound);
+        return url;
     }
 }

@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-
+//aggiungere avatar che servirà per la post dell'user
 @Entity
 @Getter
 @Setter
@@ -40,9 +40,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String avatar;
     @OneToOne(mappedBy = "user")
     private AnnualCard annualCard;
-    public User(String username, String email, String password, String name, String surname, LocalDate dateOfBirthday, String licensePlate, boolean hasAnnualCard){
+    public User(String username, String email, String password, String name, String surname, LocalDate dateOfBirthday, String licensePlate, boolean hasAnnualCard, String avatar) {
         this.username=username;
         this.email=email;
         this.password=password;
@@ -51,8 +52,13 @@ public class User {
         this.dateOfBirthday=dateOfBirthday;
         this.licensePlate=licensePlate;
         this.hasAnnualCard = hasAnnualCard;
+        this.avatar = avatar;
         this.role = Role.USER;
+
+
     }
+
+
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(this.role.name()));

@@ -12,8 +12,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -81,6 +85,18 @@ public class UsersController {
     @PutMapping("/me")
     public User updateProfile(@AuthenticationPrincipal User userAuthenticated, @RequestBody UserDTO payload) {
         return this.usersService.update(userAuthenticated.getId(), payload);
+    }
+
+
+    //POST ME IMG
+    @PostMapping("/me/avatar")
+    public ResponseEntity<Map<String, String>> imgUploadME(@RequestParam("avatar") MultipartFile img,
+                                                           @AuthenticationPrincipal User userAuthenticated) throws IOException, MaxUploadSizeExceededException {
+        String avatarUrl = this.usersService.imgUpload(img, userAuthenticated.getId());
+
+        Map<String, String> response = new HashMap<>();
+        response.put("avatar", avatarUrl);
+        return ResponseEntity.ok(response);
     }
 
 
