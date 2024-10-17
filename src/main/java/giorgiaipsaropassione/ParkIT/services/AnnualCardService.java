@@ -25,6 +25,11 @@ public class AnnualCardService {
         User user = usersRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
 
+        // Verifica se l'utente ha già una tessera annuale
+        if (annualCardRepository.existsByUser(user)) {
+            throw new IllegalStateException("L'utente ha già acquistato una tessera annuale.");
+        }
+
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusYears(1);
 
