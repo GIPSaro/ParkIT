@@ -22,37 +22,38 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
-public class UsersController {
+class UsersController {
 
     @Autowired
     private UsersService usersService;
 
-
-    // ** stampa tutti gli utenti
+    // GET per utenti
     @GetMapping
-    // può farlo solo admin
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Page<User> findAll(@RequestParam(defaultValue = "0") int page,
-                              @RequestParam(defaultValue = "10") int size,
-                              @RequestParam(defaultValue = "id") String sortBy){
-        return this.usersService.getAllUser(page, size, sortBy );
+    public ResponseEntity<Page<User>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        Page<User> users = usersService.getAllUser(page, size, sortBy);
+        return ResponseEntity.ok(users);
     }
 
     // GET utente per ID
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable UUID id) {
-      return this.usersService.findById(id);
+    public ResponseEntity<User> getUserById(@PathVariable UUID id) {
+        User user = usersService.findById(id);
+        return ResponseEntity.ok(user);
     }
 
     // POST nuovo utente
     @PostMapping
-    public User createUser(@RequestBody UserDTO userDTO) {
-        return this.usersService.saveUser(userDTO);
+    public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
+        User newUser = usersService.saveUser(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
     // PUT aggiorna l'utente
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable UUID id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody UserDTO userDTO) {
         User existingUser = usersService.findById(id);
 
         // Aggiorna i campi del utente
@@ -61,19 +62,37 @@ public class UsersController {
         existingUser.setPassword(usersService.bcrypt.encode(userDTO.password()));
         existingUser.setName(userDTO.name());
         existingUser.setSurname(userDTO.surname());
+        existingUser.setAvatar("https://ui-avatars.com/api/?name=" + userDTO.name() + "+" + userDTO.surname());
+
         // Salva l'utente aggiornato
-        return this.usersService.saveUser(userDTO);
+        User updatedUser = usersService.saveUser(userDTO);
+        return ResponseEntity.ok(updatedUser);
     }
 
-    // DELETE - accessibile solo agli ADMIN
+    // DELETE elimina utente - accessibile solo agli ADMIN
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         User userToDelete = usersService.findById(id);
         usersService.userRepository.delete(userToDelete);
+        return ResponseEntity.noContent().build();
     }
 
     // Endpoint /me
+//    @GetMapping("/me")
+    public ResponseEntity<User> getAuthenticatedUser() {
+
+        // Ottenere l'utente autenticato
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        // Recuperare l'utente dal database tramite UsersService
+        User authenticatedUser = usersService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utente autenticato non trovato"));
+
+        // Restituire le informazioni dell'utente autenticato
+        return ResponseEntity.ok(authenticatedUser);
+    }
 
     //GET ME
     @GetMapping("/me")
@@ -87,8 +106,7 @@ public class UsersController {
         return this.usersService.update(userAuthenticated.getId(), payload);
     }
 
-
-    //POST ME IMG
+        //POST ME IMG
     @PostMapping("/me/avatar")
     public ResponseEntity<Map<String, String>> imgUploadME(@RequestParam("avatar") MultipartFile img,
                                                            @AuthenticationPrincipal User userAuthenticated) throws IOException, MaxUploadSizeExceededException {
@@ -101,3 +119,6 @@ public class UsersController {
 
 
 }
+
+
+

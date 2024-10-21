@@ -24,7 +24,7 @@ public class AnnualCardController {
             AnnualCard annualCard = annualCardService.purchaseAnnualCard(annualCardDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(annualCard);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null); 
+            return ResponseEntity.badRequest().body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }

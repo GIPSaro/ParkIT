@@ -1,4 +1,4 @@
 package giorgiaipsaropassione.ParkIT.DTO;
 
-public record UserRespDTO(String accessToken) {
+public record UserRespDTO(String accessToken, String role) {
 }

@@ -11,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -39,10 +40,13 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+    private LocalDateTime dateOfRegister;
 
     private String avatar;
     @OneToOne(mappedBy = "user")
     private AnnualCard annualCard;
+
+
     public User(String username, String email, String password, String name, String surname, LocalDate dateOfBirthday, String licensePlate, boolean hasAnnualCard, String avatar) {
         this.username=username;
         this.email=email;

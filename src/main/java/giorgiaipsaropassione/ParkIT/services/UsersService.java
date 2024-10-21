@@ -22,6 +22,9 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -39,10 +42,18 @@ public class UsersService {
     MailgunSender mailgunSender;
 
     // GET PAGES
-    public Page<User> getAllUser(int pages, int size, String sortBy) {
+    public Page<User> getAllUser(int pages, int size, String sortBy, Boolean hasAnnualCard, String startDate) {
         Pageable pageable = PageRequest.of(pages, size, Sort.by(sortBy));
+        if (hasAnnualCard != null) {
+            return this.userRepository.findByHasAnnualCard(hasAnnualCard, pageable);
+        }
+        if (startDate != null) {
+            LocalDate start = LocalDate.parse(startDate);
+            return this.userRepository.findByDateOfRegisterAfter(start.atStartOfDay(), pageable);
+        }
         return this.userRepository.findAll(pageable);
     }
+
 
     public User findFromEmail(String email) {
         return this.userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(email));
@@ -71,6 +82,7 @@ public class UsersService {
                 body.hasAnnualCard(),
                 "https://ui-avatars.com/api/?name=" + body.name() + "+" + body.surname());
 
+        newUser.setDateOfRegister(LocalDateTime.now());
                 User savedUser = this.userRepository.save(newUser);
         this.mailgunSender.sendRegistrationEmail(newUser);
         return savedUser;
@@ -108,5 +120,16 @@ public class UsersService {
         userFound.setAvatar(url);
         this.userRepository.save(userFound);
         return url;
+    }
+
+    // GET PAGES
+    public Page<User> getAllUser(int pages, int size, String sortBy) {
+        Pageable pageable = PageRequest.of(pages, size, Sort.by(sortBy));
+        return this.userRepository.findAll(pageable);
+    }
+
+    // GET user con Optional
+    public Optional<User> findByUsername(String username) {
+        return this.userRepository.findByUsername(username);
     }
 }

@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class MailgunSender {
 
-    private String apiKey;
-    private String domainName;
-    private String emailFrom;
+    private final String apiKey;
+    private final String domainName;
+    private final String emailFrom;
 
     public MailgunSender(@Value("${mailgun.key}") String apiKey, @Value("${mailgun.domain}") String domainName, @Value("${mailgun.emailFrom}") String emailFrom) {
         this.apiKey = apiKey;
