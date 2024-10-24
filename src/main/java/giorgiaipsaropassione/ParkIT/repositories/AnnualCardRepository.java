@@ -12,5 +12,6 @@ import java.util.UUID;
 public interface AnnualCardRepository extends JpaRepository<AnnualCard, UUID> {
     boolean existsByUser(User user);
     Optional<AnnualCard> findByUserAndActiveTrue(User user);
+    Optional<AnnualCard> findByUserId(UUID userId);
 
 }

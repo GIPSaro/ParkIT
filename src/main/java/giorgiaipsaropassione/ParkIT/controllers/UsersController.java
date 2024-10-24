@@ -1,7 +1,10 @@
 package giorgiaipsaropassione.ParkIT.controllers;
 
+import giorgiaipsaropassione.ParkIT.DTO.AnnualCardDTO;
 import giorgiaipsaropassione.ParkIT.DTO.UserDTO;
+import giorgiaipsaropassione.ParkIT.entities.AnnualCard;
 import giorgiaipsaropassione.ParkIT.entities.User;
+import giorgiaipsaropassione.ParkIT.services.AnnualCardService;
 import giorgiaipsaropassione.ParkIT.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +30,8 @@ class UsersController {
     @Autowired
     private UsersService usersService;
 
+    @Autowired
+    private AnnualCardService annualCardService;
     // GET per utenti
     @GetMapping
     public ResponseEntity<Page<User>> getAllUsers(
@@ -51,48 +56,28 @@ class UsersController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
-    // PUT aggiorna l'utente
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody UserDTO userDTO) {
-        User existingUser = usersService.findById(id);
+    //------------ADMIN--------------//
 
-        // Aggiorna i campi del utente
-        existingUser.setUsername(userDTO.username());
-        existingUser.setEmail(userDTO.email());
-        existingUser.setPassword(usersService.bcrypt.encode(userDTO.password()));
-        existingUser.setName(userDTO.name());
-        existingUser.setSurname(userDTO.surname());
-        existingUser.setAvatar("https://ui-avatars.com/api/?name=" + userDTO.name() + "+" + userDTO.surname());
+    // PUT
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @PutMapping("/{id}")
+//    public User updateProfileUser(@AuthenticationPrincipal User userAuthenticated, @RequestBody UserDTO payload) {
+//        // Log dell'utente autenticato e del payload
+//        System.out.println("User Authenticated: " + userAuthenticated);
+//        System.out.println("Payload: " + payload);
+//        return this.usersService.update(userAuthenticated.getId(), payload);
+//    }
+//
+//    // DELETE
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+//        User userToDelete = usersService.findById(id);
+//        usersService.userRepository.delete(userToDelete);
+//        return ResponseEntity.noContent().build();
+//    }
 
-        // Salva l'utente aggiornato
-        User updatedUser = usersService.saveUser(userDTO);
-        return ResponseEntity.ok(updatedUser);
-    }
-
-    // DELETE elimina utente - accessibile solo agli ADMIN
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        User userToDelete = usersService.findById(id);
-        usersService.userRepository.delete(userToDelete);
-        return ResponseEntity.noContent().build();
-    }
-
-    // Endpoint /me
-//    @GetMapping("/me")
-    public ResponseEntity<User> getAuthenticatedUser() {
-
-        // Ottenere l'utente autenticato
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        // Recuperare l'utente dal database tramite UsersService
-        User authenticatedUser = usersService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Utente autenticato non trovato"));
-
-        // Restituire le informazioni dell'utente autenticato
-        return ResponseEntity.ok(authenticatedUser);
-    }
+   //-----------------------ME---------------//
 
     //GET ME
     @GetMapping("/me")
@@ -106,7 +91,7 @@ class UsersController {
         return this.usersService.update(userAuthenticated.getId(), payload);
     }
 
-        //POST ME IMG
+     //POST ME IMG
     @PostMapping("/me/avatar")
     public ResponseEntity<Map<String, String>> imgUploadME(@RequestParam("avatar") MultipartFile img,
                                                            @AuthenticationPrincipal User userAuthenticated) throws IOException, MaxUploadSizeExceededException {
@@ -116,6 +101,39 @@ class UsersController {
         response.put("avatar", avatarUrl);
         return ResponseEntity.ok(response);
     }
+
+    // DELETE ME
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteUserMe(@AuthenticationPrincipal User userAuthenticated) {
+
+        usersService.userRepository.delete(userAuthenticated);
+        return ResponseEntity.noContent().build();
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        User userToDelete = usersService.findById(id);
+        usersService.userRepository.delete(userToDelete);
+        return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/{id}")
+    public User updateProfileUser(@PathVariable UUID id, @RequestBody UserDTO payload) {
+        // Log dell'utente autenticato e del payload
+        System.out.println("User Authenticated: " + id);
+        System.out.println("Payload: " + payload);
+        
+        return this.usersService.update(id, payload);
+    }
+
+
+    //ANNUAL CARD
+
+    @GetMapping("/{userId}/annualCard")
+    public AnnualCardDTO getAnnualCard(@PathVariable UUID userId) {
+        AnnualCard annualCard = annualCardService.getAnnualCardForUser(userId);
+        return new AnnualCardDTO(annualCard.getStartDate(), annualCard.getEndDate(), annualCard.getPrice());
+    }
+
+
 
 
 }

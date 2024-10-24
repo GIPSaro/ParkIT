@@ -27,12 +27,16 @@ public class AuthService {
         if (found != null && bcrypt.matches(body.password(), found.getPassword())) {
             String token = jwtTools.createToken(found);
             String role = String.valueOf(found.getRole());
+            System.out.println("User " + body.email() + " logged in successfully.");
             return new UserRespDTO(token, role);
         } else {
+            System.out.println("Failed login attempt for user: " + body.email());
             throw new UnauthorizedException("CREDENTIALS ARE NOT VALID");
         }
     }
 }
+
+
 
 
 

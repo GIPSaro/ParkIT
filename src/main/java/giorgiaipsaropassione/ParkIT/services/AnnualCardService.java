@@ -22,22 +22,45 @@ public class AnnualCardService {
     @Autowired
     private UsersRepository userRepository;
 
+
     public AnnualCard purchaseCardForUser(UUID userId, AnnualCardDTO body) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        LocalDateTime startDate = body.getStartDate();
-        LocalDateTime endDate = body.getEndDate();
+        // Controlla se l'utente ha già una tessera annuale attiva
+        AnnualCard existingCard = annualCardRepository.findByUserId(userId)
+                .orElse(null);
+
+        // Se c'è una tessera esistente e la sua data di fine è futura, non consentire l'acquisto
+        if (existingCard != null && existingCard.getEndDate().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("L'utente ha già una tessera annuale attiva.");
+        }
+
+
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusYears(1);
         Double price = body.getPrice();
 
+        // Crea una nuova tessera annuale
         AnnualCard annualCard = new AnnualCard(user, startDate, endDate, price);
 
-        // Imposta l'AnnualCard all'utente
-        user.setAnnualCard(annualCard);
-        user.setHasAnnualCard(true);
 
-        userRepository.save(user);
-        return annualCardRepository.save(annualCard);
+        annualCard.purchaseSubscription(user, price);
+
+        // Salva l'utente e la nuova tessera annuale
+        userRepository.save(user); // Salva l'utente
+        return annualCardRepository.save(annualCard); // Salva la nuova tessera
+    }
+
+
+
+    public AnnualCard getAnnualCardForUser(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        return annualCardRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Annual card not found for user"));
     }
 
 }

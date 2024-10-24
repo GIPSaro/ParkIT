@@ -16,17 +16,30 @@ public class JWTTools {
     private String secret;
 
     public String createToken(User user) {
+
         return Jwts.builder().issuedAt(new Date(System.currentTimeMillis()))
+                .claim("role", user.getRole())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
                 .subject(String.valueOf(user.getId()))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
+
     }
 
     public void verifyToke(String token) {
         try {
-            Jwts.parser().verifyWith(Keys.hmacShaKeyFor(secret.getBytes())).build().parse(token);
+            Jwts.parser()
+                    .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+                    .build()
+                    .parse(token);
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            System.out.println( e.getMessage());
+            throw new UnauthorizedException("Token expired, please login again.");
+        } catch (io.jsonwebtoken.SignatureException e) {
+            System.out.println( e.getMessage());
+            throw new UnauthorizedException("Invalid token signature, please login again.");
         } catch (Exception ex) {
+            System.out.println(ex.getMessage());
             throw new UnauthorizedException("PROBLEMS WITH TOKEN, TRY TO LOGIN");
         }
     }
