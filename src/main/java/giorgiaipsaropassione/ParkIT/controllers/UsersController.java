@@ -120,7 +120,7 @@ class UsersController {
         // Log dell'utente autenticato e del payload
         System.out.println("User Authenticated: " + id);
         System.out.println("Payload: " + payload);
-        
+
         return this.usersService.update(id, payload);
     }
 

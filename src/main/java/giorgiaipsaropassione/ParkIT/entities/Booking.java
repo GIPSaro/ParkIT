@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-
+import giorgiaipsaropassione.ParkIT.enums.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -32,10 +31,14 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    public Booking(User user, ParkingSlot parkingSlot, LocalDateTime startTime, LocalDateTime endTime) {
+    @Enumerated(EnumType.STRING) // Salviamo il valore dell'enum come stringa nel database
+    private BookingStatus status = BookingStatus.FREE;
+
+    public Booking(User user, ParkingSlot parkingSlot, LocalDateTime startTime, LocalDateTime endTime, BookingStatus status) {
         this.user = user;
         this.parkingSlot = parkingSlot;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.status = status;
     }
 }
