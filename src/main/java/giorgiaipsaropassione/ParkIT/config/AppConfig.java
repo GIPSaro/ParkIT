@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
-//aggiungere configurazione Cloudinary
+
 
 
 @Configuration

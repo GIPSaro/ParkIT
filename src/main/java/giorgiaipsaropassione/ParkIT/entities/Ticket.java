@@ -1,6 +1,5 @@
 package giorgiaipsaropassione.ParkIT.entities;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

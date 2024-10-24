@@ -1,6 +1,7 @@
 package giorgiaipsaropassione.ParkIT.services;
 
 import giorgiaipsaropassione.ParkIT.DTO.UserLoginDTO;
+import giorgiaipsaropassione.ParkIT.DTO.UserRespDTO;
 import giorgiaipsaropassione.ParkIT.entities.User;
 import giorgiaipsaropassione.ParkIT.exceptions.UnauthorizedException;
 import giorgiaipsaropassione.ParkIT.security.JWTTools;
@@ -21,14 +22,17 @@ public class AuthService {
     PasswordEncoder bcrypt;
 
 
-    public String checkCredentialAndGenerateToken(UserLoginDTO body) {
+    public UserRespDTO checkCredentialAndGenerateToken(UserLoginDTO body) {
         User found = this.userService.findFromEmail(body.email());
-        if (bcrypt.matches(body.password(), found.getPassword())) {
-            return jwtTools.createToken(found);
+        if (found != null && bcrypt.matches(body.password(), found.getPassword())) {
+            String token = jwtTools.createToken(found);
+            String role = String.valueOf(found.getRole());
+            return new UserRespDTO(token, role);
         } else {
-            throw new UnauthorizedException("CREDENTIAL ARE NOT VALID");
+            throw new UnauthorizedException("CREDENTIALS ARE NOT VALID");
         }
     }
-
-
 }
+
+
+

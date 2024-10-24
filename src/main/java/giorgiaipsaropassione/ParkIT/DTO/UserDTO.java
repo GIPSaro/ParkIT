@@ -13,6 +13,7 @@ public record UserDTO(
         String username,
 
 
+        @NotEmpty
         String email,
 
         @NotEmpty(message = "Password is required")
@@ -33,7 +34,11 @@ public record UserDTO(
         String licensePlate,
 
         boolean hasAnnualCard,
-        String avatar
+        String avatar,
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        LocalDate dateOfRegister
+
 
 ) {
 

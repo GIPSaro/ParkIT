@@ -1,6 +1,5 @@
 package giorgiaipsaropassione.ParkIT.entities;
 
-
 import giorgiaipsaropassione.ParkIT.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,9 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +24,7 @@ public class User {
     @GeneratedValue
     private UUID id;
     private String username;
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
     private String password;
     private String name;
@@ -40,10 +37,10 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-    private LocalDateTime dateOfRegister;
+    private LocalDate dateOfRegister;
 
     private String avatar;
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private AnnualCard annualCard;
 
 
@@ -58,6 +55,7 @@ public class User {
         this.hasAnnualCard = hasAnnualCard;
         this.avatar = avatar;
         this.role = Role.USER;
+        this.dateOfRegister = LocalDate.now();
 
 
     }

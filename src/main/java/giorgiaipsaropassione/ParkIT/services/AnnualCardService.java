@@ -18,22 +18,26 @@ public class AnnualCardService {
     private AnnualCardRepository annualCardRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UsersService userService;
+    @Autowired
+    private UsersRepository userRepository;
 
-    public AnnualCard purchaseAnnualCard(AnnualCardDTO annualCardDTO) {
-        UUID userId = annualCardDTO.userId();
-        User user = usersRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
+    public AnnualCard purchaseCardForUser(UUID userId, AnnualCardDTO body) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Verifica se l'utente ha già una tessera annuale
-        if (annualCardRepository.existsByUser(user)) {
-            throw new IllegalStateException("L'utente ha già acquistato una tessera annuale.");
-        }
+        LocalDateTime startDate = body.getStartDate();
+        LocalDateTime endDate = body.getEndDate();
+        Double price = body.getPrice();
 
-        LocalDateTime startDate = LocalDateTime.now();
-        LocalDateTime endDate = startDate.plusYears(1);
+        AnnualCard annualCard = new AnnualCard(user, startDate, endDate, price);
 
-        AnnualCard annualCard = new AnnualCard(user, startDate, endDate, annualCardDTO.price());
+        // Imposta l'AnnualCard all'utente
+        user.setAnnualCard(annualCard);
+        user.setHasAnnualCard(true);
+
+        userRepository.save(user);
         return annualCardRepository.save(annualCard);
     }
+
 }

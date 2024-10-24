@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,6 +41,8 @@ public class UsersService {
     @Autowired
     MailgunSender mailgunSender;
 
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     // GET PAGES
     public Page<User> getAllUser(int pages, int size, String sortBy, Boolean hasAnnualCard, String startDate) {
         Pageable pageable = PageRequest.of(pages, size, Sort.by(sortBy));
@@ -49,21 +51,17 @@ public class UsersService {
         }
         if (startDate != null) {
             LocalDate start = LocalDate.parse(startDate);
-            return this.userRepository.findByDateOfRegisterAfter(start.atStartOfDay(), pageable);
+            return this.userRepository.findByDateOfRegisterAfter(String.valueOf(start.atStartOfDay()), pageable);
         }
         return this.userRepository.findAll(pageable);
     }
 
 
-    public User findFromEmail(String email) {
-        return this.userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(email));
-    }
-
-
-    // GET by id
     public User findById(UUID id) {
-        return this.userRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User with id: " + id + " NOT FOUND"));
     }
+
 
     // POST per SAVE USER
     public User saveUser(UserDTO body) {
@@ -80,15 +78,17 @@ public class UsersService {
                 body.dateOfBirthday(),
                 body.licensePlate(),
                 body.hasAnnualCard(),
-                "https://ui-avatars.com/api/?name=" + body.name() + "+" + body.surname());
+                "https://ui-avatars.com/api/?name=" + body.name() + "+" + body.surname()
+        );
 
-        newUser.setDateOfRegister(LocalDateTime.now());
-                User savedUser = this.userRepository.save(newUser);
+        // Imposta la data di registrazione direttamente
+        newUser.setDateOfRegister(LocalDate.now());
+
+        User savedUser = this.userRepository.save(newUser);
         this.mailgunSender.sendRegistrationEmail(newUser);
         return savedUser;
-
-
     }
+
 
     public User update(UUID userId, UserDTO userUpdateDTO) {
         User existingUser = userRepository.findById(userId)
@@ -110,8 +110,12 @@ public class UsersService {
         existingUser.setDateOfBirthday(userUpdateDTO.dateOfBirthday());
         existingUser.setLicensePlate(userUpdateDTO.licensePlate());
 
+        // Directly set the date of registration
+        existingUser.setDateOfRegister(userUpdateDTO.dateOfRegister());
+
         return userRepository.save(existingUser);
     }
+
 
     //IMG UPLOAD
     public String imgUpload(MultipartFile file, UUID id) throws IOException, MaxUploadSizeExceededException {
@@ -131,5 +135,9 @@ public class UsersService {
     // GET user con Optional
     public Optional<User> findByUsername(String username) {
         return this.userRepository.findByUsername(username);
+    }
+
+    public User findFromEmail(String email) {
+        return this.userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(email));
     }
 }
