@@ -11,5 +11,5 @@ import java.util.UUID;
 @Repository
 public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, UUID> {
     ParkingSlot findByIdAndStatus(UUID id, ParkingSlotStatus status);
-
+    boolean existsByLocation(String location);
 }

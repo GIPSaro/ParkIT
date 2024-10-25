@@ -36,11 +36,26 @@ public class ParkingSlotController {
 
     @PostMapping
     public ResponseEntity<ParkingSlot> createParkingSlot(@RequestBody ParkingSlotDTO parkingSlotDTO) {
-        ParkingSlot parkingSlot = new ParkingSlot(parkingSlotDTO.getLocation(), ParkingSlotStatus.AVAILABLE);
+        // Verifica se esiste già uno slot con la stessa posizione
+        if (parkingSlotService.existsByLocation(parkingSlotDTO.getLocation())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // Slot esistente
+        }
+
+        // Crea un nuovo ParkingSlot
+        ParkingSlot parkingSlot = new ParkingSlot();
+        parkingSlot.setName(parkingSlotDTO.getName());
+        parkingSlot.setLocation(parkingSlotDTO.getLocation());
+        parkingSlot.setAddress(parkingSlotDTO.getAddress());
+
+        // Mappatura delle coordinate
+        parkingSlot.setLatitude(parkingSlotDTO.getCoordinates().getLat());
+        parkingSlot.setLongitude(parkingSlotDTO.getCoordinates().getLng());
+
+        parkingSlot.setStatus(ParkingSlotStatus.AVAILABLE);
+
         ParkingSlot createdParkingSlot = parkingSlotService.createParkingSlot(parkingSlot);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdParkingSlot);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteParkingSlot(@PathVariable UUID id) {

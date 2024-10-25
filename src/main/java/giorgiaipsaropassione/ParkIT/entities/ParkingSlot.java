@@ -18,6 +18,7 @@ public class ParkingSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    private String name;
     private String location;
     private String address;
     private double latitude;

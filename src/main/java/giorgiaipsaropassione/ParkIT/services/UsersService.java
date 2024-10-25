@@ -82,7 +82,7 @@ public class UsersService {
                 "https://ui-avatars.com/api/?name=" + body.name() + "+" + body.surname()
         );
 
-       
+
         newUser.setDateOfRegister(LocalDate.now());
 
         User savedUser = this.userRepository.save(newUser);

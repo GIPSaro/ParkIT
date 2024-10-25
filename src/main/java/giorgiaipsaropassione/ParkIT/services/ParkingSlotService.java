@@ -48,4 +48,7 @@ public class ParkingSlotService {
         parkingSlot.setStatus(status);
         return parkingSlotRepository.save(parkingSlot);
     }
+    public boolean existsByLocation(String location) {
+        return parkingSlotRepository.existsByLocation(location);
+    }
 }
