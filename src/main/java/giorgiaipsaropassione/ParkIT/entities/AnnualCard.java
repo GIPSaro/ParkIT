@@ -66,17 +66,7 @@ public class AnnualCard {
         this.parkingSlot = parkingSlot;
     }
 
-    // Metodo per acquistare l'annualCard e quindi abilitare i parcheggi gratuiti
-    public void purchaseSubscription(User user, double price) {
-        if (!this.active) {
-            this.price = price;
-            this.remainingFreeParkings = 10;
-            this.active = true;
-            user.setHasAnnualCard(true); // Aggiorna il campo hasAnnualCard
-            user.setAnnualCard(this); // Associa la annualCard all'utente
-        } else {
-            throw new IllegalStateException("Hai già acquistato una tessera");
-        }
-    }
+
+
 
 }

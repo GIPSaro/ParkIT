@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-//aggiungere avatar che servirà per la post dell'user
+
 @Entity
 @Getter
 @Setter
@@ -32,7 +32,7 @@ public class User {
     private LocalDate dateOfBirthday;
     private String licensePlate;
 
-    //se l'utente decide di comprare la tessera
+
     private boolean hasAnnualCard;
 
     @Enumerated(EnumType.STRING)

@@ -1,8 +1,7 @@
 package giorgiaipsaropassione.ParkIT.controllers;
 
-import giorgiaipsaropassione.ParkIT.DTO.AnnualCardDTO;
+
 import giorgiaipsaropassione.ParkIT.DTO.UserDTO;
-import giorgiaipsaropassione.ParkIT.entities.AnnualCard;
 import giorgiaipsaropassione.ParkIT.entities.User;
 import giorgiaipsaropassione.ParkIT.services.AnnualCardService;
 import giorgiaipsaropassione.ParkIT.services.UsersService;
@@ -10,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
@@ -124,14 +120,6 @@ class UsersController {
         return this.usersService.update(id, payload);
     }
 
-
-    //ANNUAL CARD
-
-    @GetMapping("/{userId}/annualCard")
-    public AnnualCardDTO getAnnualCard(@PathVariable UUID userId) {
-        AnnualCard annualCard = annualCardService.getAnnualCardForUser(userId);
-        return new AnnualCardDTO(annualCard.getStartDate(), annualCard.getEndDate(), annualCard.getPrice());
-    }
 
 
 

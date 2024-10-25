@@ -32,16 +32,31 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer"))
+        if (authHeader == null || !authHeader.startsWith("Bearer")) {
+            System.out.println("Authorization Header Missing or Incorrect");
             throw new UnauthorizedException("INSERT DATA CORRECTLY");
+        }
+
         String accessToken = authHeader.substring(7);
-        jwtTools.verifyToke(accessToken);
+        try {
+            jwtTools.verifyToke(accessToken);
+        } catch (Exception e) {
+            System.out.println("Token verification failed: " + e.getMessage());
+            throw new UnauthorizedException("Invalid Token");
+        }
+
         String id = this.jwtTools.extractIdFromToken(accessToken);
         User userFromDB = this.userService.findById(UUID.fromString(id));
+        if (userFromDB == null) {
+            System.out.println("User not found for ID: " + id);
+            throw new UnauthorizedException("User not found");
+        }
+
         Authentication auth = new UsernamePasswordAuthenticationToken(userFromDB, null, userFromDB.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request, response);
     }
+
 
     @Override
     public boolean shouldNotFilter(HttpServletRequest request) throws ServletException {

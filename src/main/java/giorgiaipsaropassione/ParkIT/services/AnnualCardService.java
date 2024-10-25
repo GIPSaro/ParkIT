@@ -24,43 +24,40 @@ public class AnnualCardService {
 
 
     public AnnualCard purchaseCardForUser(UUID userId, AnnualCardDTO body) {
+        System.out.println("Attempting to purchase card for user: " + userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Controlla se l'utente ha già una tessera annuale attiva
         AnnualCard existingCard = annualCardRepository.findByUserId(userId)
                 .orElse(null);
 
-        // Se c'è una tessera esistente e la sua data di fine è futura, non consentire l'acquisto
         if (existingCard != null && existingCard.getEndDate().isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("L'utente ha già una tessera annuale attiva.");
         }
-
 
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusYears(1);
         Double price = body.getPrice();
 
-        // Crea una nuova tessera annuale
         AnnualCard annualCard = new AnnualCard(user, startDate, endDate, price);
+        System.out.println("Saving new annual card for user: " + userId);
+        annualCardRepository.save(annualCard);
 
+        System.out.println("Impostazione del flag hasAnnualCard su true per l'utente: " + userId);
+        user.setHasAnnualCard(true);
+        userRepository.save(user);
 
-        annualCard.purchaseSubscription(user, price);
-
-        // Salva l'utente e la nuova tessera annuale
-        userRepository.save(user); // Salva l'utente
-        return annualCardRepository.save(annualCard); // Salva la nuova tessera
+        return annualCard;
     }
 
 
 
-    public AnnualCard getAnnualCardForUser(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        return annualCardRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Annual card not found for user"));
+    public AnnualCard getAnnualCardById(UUID annualCardId) {
+        return annualCardRepository.findById(annualCardId)
+                .orElseThrow(() -> new IllegalArgumentException("Annual card not found"));
     }
+
 
 }

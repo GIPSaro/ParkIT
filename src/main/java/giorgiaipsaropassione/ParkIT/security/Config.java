@@ -33,14 +33,14 @@ public class Config {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         httpSecurity.sessionManagement(http -> http.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.authorizeHttpRequests(http -> http.requestMatchers("/**").permitAll());
-        httpSecurity.cors(Customizer.withDefaults()); // Manteniamo la configurazione CORS
+        httpSecurity.cors(Customizer.withDefaults());
         return httpSecurity.build();
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Collections.singletonList(localHost)); // Localhost con porta 5713
+        configuration.setAllowedOrigins(Collections.singletonList(localHost));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
 

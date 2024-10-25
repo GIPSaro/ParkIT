@@ -50,7 +50,6 @@ public class PaymentMethodController {
         response.setHeader("Content-Security-Policy",
                 "script-src 'self' 'nonce-" + nonce + "' https://www.paypal.com;");
 
-        // Qui potresti restituire un contenuto HTML, JSON, o altro a seconda delle tue necessità
         return new ResponseEntity<>("Secure page with nonce: " + nonce, HttpStatus.OK);
     }
 }

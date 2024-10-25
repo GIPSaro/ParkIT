@@ -6,8 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public record UserDTO(
+
+        UUID id,
         @NotEmpty(message = "Username is required")
         @Size (min = 2, max = 20, message = "Username has to be from 2 to 20 characters")
         String username,

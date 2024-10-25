@@ -31,7 +31,7 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    @Enumerated(EnumType.STRING) // Salviamo il valore dell'enum come stringa nel database
+    @Enumerated(EnumType.STRING)
     private BookingStatus status = BookingStatus.FREE;
 
     public Booking(User user, ParkingSlot parkingSlot, LocalDateTime startTime, LocalDateTime endTime, BookingStatus status) {

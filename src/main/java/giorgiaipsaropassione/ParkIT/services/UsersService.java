@@ -82,7 +82,7 @@ public class UsersService {
                 "https://ui-avatars.com/api/?name=" + body.name() + "+" + body.surname()
         );
 
-        // Imposta la data di registrazione direttamente
+       
         newUser.setDateOfRegister(LocalDate.now());
 
         User savedUser = this.userRepository.save(newUser);
@@ -111,7 +111,7 @@ public class UsersService {
         existingUser.setDateOfBirthday(userUpdateDTO.dateOfBirthday());
         existingUser.setLicensePlate(userUpdateDTO.licensePlate());
 
-        // Directly set the date of registration
+
         existingUser.setDateOfRegister(userUpdateDTO.dateOfRegister());
 
         return userRepository.save(existingUser);
